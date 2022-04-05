@@ -1,0 +1,59 @@
+#!/bin/bash
+
+clear
+
+##VARIABLES
+
+answer="n"
+
+while [[ "$answer" == "n" ]]
+do
+	echo "================================================="
+	echo "TOMCAT INSTALLATION VARIABLES"
+	echo "================================================="
+	echo ""
+	read -p "Tomcat new installation path: " tomcatPath
+	read -p "tomcatmgr password: " tomcatmgrPass
+	read -p "Manager Max File Size (MB): " mgrMaxFileSize
+	read -p "Parameter XMS value to JVM (MB): " xmsJVM
+	read -p "Parameter XMX value to JVM (MB): " xmxJVM
+	echo ""
+	echo "================================================="
+	echo "Summary:"
+	echo " - Tomcat installation path:" $tomcatPath
+	echo " - tomcatmgr password:" $tomcatmgrPass
+	echo " - Manager Max File Size:" $mgrMaxFileSize"MB"
+	echo " - Parameter XMS value to JVM:" $xmsJVM"MB -> ("$((xmsJVM*1024*1024))")"
+	echo " - Parameter XMX value to JVM:" $xmxJVM"MB -> ("$((xmxJVM*1024*1024))")"
+	echo "================================================="
+	
+	read -p "Is this configuration OK? (y, n, q): " answer
+	
+	if [[ "$answer" == "q" ]]
+	then
+		echo "Bye :)"
+		exit 1
+	fi
+
+	echo ""
+	echo ""
+
+
+	#Last variable preparation
+	xmsJVM=$((xmsJVM*1024*1024))
+	xmxJVM=$((xmxJVM*1024*1024))
+
+	echo $xmsJVM
+	echo $xmxJVM
+
+
+done
+
+echo ""
+echo "================================================="
+echo "TOMCAT INSTALLATION"
+echo "================================================="
+echo ""
+
+
+

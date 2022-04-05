@@ -1,0 +1,23 @@
+[Unit]
+Description=Tomcat servlet container
+After=network.target
+ 
+[Service]
+Type=forking
+ 
+User=tomcat
+Group=tomcat
+ 
+Environment="JAVA_HOME=/usr/lib/jvm/default-java"
+Environment="JAVA_OPTS=-Djava.security.egd=file:///dev/urandom"
+ 
+Environment="CATALINA_BASE=TOMCATPATH/tomcat"
+Environment="CATALINA_HOME=TOMCATPATH/tomcat"
+Environment="CATALINA_PID=TOMCATPATH/tomcat/temp/tomcat.pid"
+Environment="CATALINA_OPTS=-XmsXMSVALUEM -XmxXMXVALUEM -server -XX:+UseParallelGC"
+ 
+ExecStart=TOMCATPATH/tomcat/bin/startup.sh
+ExecStop=TOMCATPATH/tomcat/bin/shutdown.sh
+ 
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,84 @@
+#!/bin/bash
+
+clear
+
+##VARIABLES
+
+answer="n"
+
+while [[ "$answer" == "n" ]]
+do
+	echo "================================================="
+	echo "TOMCAT INSTALLATION VARIABLES"
+	echo "================================================="
+	echo ""
+	read -p "Tomcat new installation path: " tomcatPath
+	read -p "tomcatmgr password: " tomcatmgrPass
+	read -p "Manager Max File Size (MB): " mgrMaxFileSize
+	read -p "Parameter XMS value to JVM (MB): " xmsJVM
+	read -p "Parameter XMX value to JVM (MB): " xmxJVM
+	echo ""
+	echo "================================================="
+	echo "Summary:"
+	echo " - Tomcat installation path:" $tomcatPath
+	echo " - tomcatmgr password:" $tomcatmgrPass
+	echo " - Manager Max File Size:" $mgrMaxFileSize"MB"
+	echo " - Parameter XMS value to JVM:" $xmsJVM"MB -> ("$((xmsJVM*1024*1024))")"
+	echo " - Parameter XMX value to JVM:" $xmxJVM"MB -> ("$((xmxJVM*1024*1024))")"
+	echo "================================================="
+	
+	read -p "Is this configuration OK? (y, n, q): " answer
+	
+	if [[ "$answer" == "q" ]]
+	then
+		echo "Bye :)"
+		exit 1
+	fi
+
+	echo ""
+	echo ""
+
+
+	#Last variable preparation
+	xmsJVM=$((xmsJVM*1024*1024))
+	xmxJVM=$((xmxJVM*1024*1024))
+
+done
+
+echo ""
+echo "================================================="
+echo "TOMCAT INSTALLATION"
+echo "================================================="
+echo ""
+
+#as Root
+sudo su -
+
+#Installing JDK and auxiliar commands
+sudo apt update -y
+sudo apt install default-jdk tar wget -y
+
+#TomcatUser No shell access
+sudo mkdir -p $tomcatPath
+sudo groupadd tomcat
+sudo useradd tomcat -s /bin/false -g tomcat -m -d $tomcatPath
+
+#Download and untar Tomcat
+wget https://dlcdn.apache.org/tomcat/tomcat-10/v10.0.20/bin/apache-tomcat-10.0.20.tar.gz
+sudo tar xzvf apache-tomcat-10*tar.gz -C $tomcatPath
+sudo ln -s $tomcatPath/apache-tomcat-10* $tomcatPath/tomcat
+sudo chown -R tomcat: $tomcatPath
+sudo find ${tomcatPath}/tomcat/bin/ -name "*.sh" -exec chmod +x {} \;
+
+#Configuration file copying
+sudo cp -f tomcat-users.xml ${tomcatPath}/tomcat/conf/
+
+
+
+#Configuration file edition
+sudo sed -i 's/temporalPass/$tomcatmgrPass/g' ${tomcatPath}/tomcat/conf/tomcat-users.xml
+sudo sed -i 's/52428800/$mgrMaxFileSize/g' ${tomcatPath}/webapps/manager/WEB-INF/web.xml
+
+
+
+#Service
